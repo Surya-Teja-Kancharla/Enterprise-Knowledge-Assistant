@@ -1,0 +1,9 @@
+[project]
+
+name = "enterprise-knowledge-assistant"
+
+version = "1.0.0"
+
+description = "Enterprise RAG Knowledge Assistant"
+
+requires-python = ">=3.11"
