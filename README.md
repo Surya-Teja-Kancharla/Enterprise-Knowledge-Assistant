@@ -5,14 +5,14 @@ An AI-powered Enterprise Knowledge Assistant that enables employees to query int
 
 ---
 
-## Project Status
+# Project Status
 
 | Stage | Status |
 |-------|:------:|
 | Project Initialization | ✅ Completed |
 | Document Loading Pipeline | ✅ Completed |
 | Semantic Chunking Pipeline | ✅ Completed |
-| Embedding Generation | ⏳ Upcoming |
+| Embedding Generation Pipeline | ✅ Completed |
 | Vector Database | ⏳ Upcoming |
 | Semantic Retrieval | ⏳ Upcoming |
 | RAG Pipeline | ⏳ Upcoming |
@@ -24,7 +24,7 @@ An AI-powered Enterprise Knowledge Assistant that enables employees to query int
 
 # Features
 
-### Completed
+## Completed
 
 - Recursive PDF discovery
 - Page-wise text extraction
@@ -32,15 +32,17 @@ An AI-powered Enterprise Knowledge Assistant that enables employees to query int
 - Production-grade logging
 - Semantic recursive chunking
 - Stable chunk identifiers
-- Chunk statistics
+- Local BGE embedding generation
+- Batch embedding pipeline
+- Embedding validation
+- Embedding statistics
 - Corpus analysis
 - Modular architecture
 
-### Planned
+## Planned
 
-- OpenAI Embeddings
 - ChromaDB Vector Store
-- Semantic Search
+- Hybrid Semantic Search
 - Retrieval-Augmented Generation (RAG)
 - FastAPI REST API
 - Streamlit Web Interface
@@ -57,10 +59,10 @@ An AI-powered Enterprise Knowledge Assistant that enables employees to query int
 |----------|------------|
 | Language | Python 3.11+ |
 | PDF Processing | PyMuPDF |
-| Chunking | LangChain RecursiveCharacterTextSplitter |
-| Embeddings | OpenAI Embeddings *(Upcoming)* |
+| Chunking | Custom RecursiveCharacterTextSplitter |
+| Embeddings | BAAI/bge-base-en-v1.5 (local) |
 | Vector Database | ChromaDB *(Upcoming)* |
-| LLM | OpenAI GPT Models *(Upcoming)* |
+| LLM | Groq Llama 3.3 *(Upcoming)* |
 | Backend | FastAPI *(Upcoming)* |
 | Frontend | Streamlit *(Upcoming)* |
 
@@ -85,10 +87,16 @@ ingestion/
 ├── chunking/
 │   └── chunker.py
 │
+├── embeddings/
+│   ├── __init__.py
+│   ├── models.py
+│   └── embeddings.py
+│
 scripts/
 │
 ├── test_loader.py
-└── test_chunker.py
+├── test_chunker.py
+└── test_embeddings.py
 
 data/
 │
@@ -100,48 +108,52 @@ logs/
 
 README.md
 requirements.txt
-````
+```
 
 ---
 
-# Architecture (Current)
+# Current Architecture
 
 ```text
-PDF Documents
-      │
-      ▼
+Enterprise PDFs
+        │
+        ▼
 PDF Loader
-      │
-      ▼
-Page Extraction
-      │
-      ▼
-Metadata Generation
-      │
-      ▼
-Semantic Chunking
-      │
-      ▼
-Chunks Ready for Embeddings
+        │
+        ▼
+DocumentPage
+        │
+        ▼
+Recursive Semantic Chunker
+        │
+        ▼
+DocumentChunk
+        │
+        ▼
+OpenAI Embedding Generator
+        │
+        ▼
+EmbeddedChunk
+        │
+        ▼
+Ready for ChromaDB
 ```
 
 ---
 
 # Document Loading Pipeline
 
-The document ingestion layer is responsible for converting enterprise PDF documents into structured page objects for downstream processing.
+The document ingestion layer converts enterprise PDF documents into structured page objects.
 
 ## Responsibilities
 
-* Recursive PDF discovery
-* Page-wise extraction
-* Text cleaning
-* Metadata generation
-* Statistics generation
+- Recursive PDF discovery
+- Page-wise text extraction
+- Text normalization
+- Metadata generation
+- Corpus statistics
 
 ## Output Object
-
-Each page is represented as a `DocumentPage`.
 
 ```python
 DocumentPage(
@@ -149,10 +161,10 @@ DocumentPage(
     page=5,
     text="...",
     metadata={
-        "document": "...",
-        "page": 5,
-        "category": "compliance",
-        "source": "..."
+        "document":"...",
+        "page":5,
+        "category":"compliance",
+        "source":"..."
     }
 )
 ```
@@ -161,21 +173,17 @@ DocumentPage(
 
 # Chunking Strategy
 
-The project uses LangChain's `RecursiveCharacterTextSplitter` to preserve semantic structure while preparing documents for embedding.
+The project uses LangChain's `RecursiveCharacterTextSplitter` to preserve semantic boundaries before embedding generation.
 
 ## Configuration
 
-| Parameter     |                          Value |
-| ------------- | -----------------------------: |
-| Splitter      | RecursiveCharacterTextSplitter |
-| Chunk Size    |                 900 Characters |
-| Chunk Overlap |                 150 Characters |
+| Parameter | Value |
+|-----------|------:|
+| Splitter | RecursiveCharacterTextSplitter |
+| Chunk Size | 900 Characters |
+| Chunk Overlap | 150 Characters |
 
----
-
-## Separator Hierarchy
-
-The splitter recursively attempts to preserve semantic boundaries using the following priority:
+## Separator Priority
 
 1. Paragraphs
 2. Bullet Lists
@@ -184,21 +192,21 @@ The splitter recursively attempts to preserve semantic boundaries using the foll
 5. Words
 6. Character Fallback
 
-This minimizes splitting inside policy sections, API documentation, FAQ entries, and procedural instructions.
+This hierarchy minimizes fragmentation of policy sections, API endpoints, procedural guides, and FAQ entries.
 
 ---
 
-## Corpus Analysis
+# Corpus Analysis
 
-The selected configuration is based on analysis of the enterprise knowledge base.
+The chunking strategy is based on analysis of the enterprise corpus.
 
-| Metric              |                         Value |
-| ------------------- | ----------------------------: |
-| Documents           |                            22 |
-| Pages               |                           445 |
-| Characters          |                       390,366 |
-| Average Page Length |                877 Characters |
-| Largest Document    | NovaCRM User Guide (31 Pages) |
+| Metric | Value |
+|---------|------:|
+| Documents | 22 |
+| Pages | 445 |
+| Characters | 390,366 |
+| Average Page Length | 877 Characters |
+| Largest Document | NovaCRM User Guide (31 Pages) |
 
 ---
 
@@ -206,46 +214,103 @@ The selected configuration is based on analysis of the enterprise knowledge base
 
 The average extracted page length is approximately **877 characters**.
 
-Using a chunk size of **900 characters** preserves most pages as complete semantic units while still allowing larger pages to be recursively divided when necessary.
+Using a chunk size of **900 characters** preserves most pages as complete semantic units while allowing larger pages to be recursively divided.
 
-This provides:
+Benefits include:
 
-* Better semantic cohesion
-* Lower embedding redundancy
-* Improved retrieval precision
-* Fewer fragmented chunks
+- Higher semantic cohesion
+- Lower embedding redundancy
+- Improved retrieval precision
+- Reduced chunk fragmentation
 
 ---
 
 ## Why 150 Character Overlap?
 
-A 150-character overlap preserves context across chunk boundaries while avoiding excessive duplication.
+A 150-character overlap preserves contextual continuity between adjacent chunks while avoiding excessive duplication.
 
-Benefits include:
+Benefits:
 
-* Better retrieval for boundary-spanning queries
-* Reduced semantic loss
-* Improved answer grounding
+- Better retrieval across chunk boundaries
+- Reduced semantic loss
+- Improved answer grounding
 
 ---
 
-## Metadata Propagation
+# Metadata Propagation
 
-Every generated chunk inherits page metadata and adds chunk-specific metadata.
-
-Example:
+Each generated chunk preserves source information and adds chunk-specific metadata.
 
 ```json
 {
-  "document": "GDPR Policy.pdf",
-  "page": 5,
-  "category": "compliance",
-  "source": "data/raw/compliance/GDPR Policy.pdf",
-  "chunk_number": 1,
-  "chunk_size": 900,
-  "chunk_overlap": 150,
-  "chunk_id": "gdpr_policy_p005_c001_a73b4d9e"
+    "document": "GDPR Policy.pdf",
+    "page": 5,
+    "category": "compliance",
+    "source": "data/raw/compliance/GDPR Policy.pdf",
+    "chunk_number": 1,
+    "chunk_size": 900,
+    "chunk_overlap": 150,
+    "chunk_id": "gdpr_policy_p005_c001_a73b4d9e"
 }
+```
+
+---
+
+# Embedding Pipeline
+
+The embedding pipeline converts semantic document chunks into dense vector representations using a local BGE embedding model.
+
+## Embedding Model
+
+| Parameter | Value |
+|-----------|------:|
+| Provider | Local (sentence-transformers) |
+| Model | BAAI/bge-base-en-v1.5 |
+| Dimension | 768 |
+| Batch Size | 32 |
+
+---
+
+## Why BAAI/bge-base-en-v1.5?
+
+The BGE (BAAI General Embedding) model is a production-grade open-source embedding model that offers:
+
+- **Free to use locally** - No API costs or rate limits
+- **High-quality semantic search** - State-of-the-art performance on retrieval benchmarks
+- **Efficient inference** - Runs comfortably on typical development hardware
+- **768-dimensional vectors** - Compact yet expressive representations
+- **Widely adopted** - Proven in production RAG systems
+
+For a corpus of 22 PDFs (~805 chunks), this model provides excellent retrieval quality without embedding costs.
+
+---
+
+## Embedding Features
+
+- Local inference (no API dependencies)
+- Batch processing
+- Normalized embeddings
+- Embedding dimension validation
+- Metadata preservation
+- Statistics collection
+- Production logging
+
+---
+
+## Embedded Object
+
+```python
+EmbeddedChunk(
+    chunk_id="gdpr_policy_p005_c001_a73b4d9e",
+
+    text="...",
+
+    embedding=[0.021, -0.084, ...],
+
+    metadata={
+        ...
+    }
+)
 ```
 
 ---
@@ -256,13 +321,10 @@ Example:
 Enterprise PDFs
         │
         ▼
-PDF Discovery
+PDF Loader
         │
         ▼
 Page Extraction
-        │
-        ▼
-Text Cleaning
         │
         ▼
 Metadata Generation
@@ -272,40 +334,63 @@ Recursive Semantic Chunking
         │
         ▼
 Document Chunks
+        │
+        ▼
+OpenAI Embeddings
+        │
+        ▼
+Embedded Chunks
 ```
 
 ---
 
 # Current Progress
 
-| Module               | Status |
-| -------------------- | :----: |
-| Logging              |    ✅   |
-| Configuration        |    ✅   |
-| PDF Loader           |    ✅   |
-| Metadata Generation  |    ✅   |
-| Statistics           |    ✅   |
-| Chunking Pipeline    |    ✅   |
-| Chunk Metadata       |    ✅   |
-| Chunk Statistics     |    ✅   |
-| Embedding Generation |    ⏳   |
-| Vector Store         |    ⏳   |
-| Retriever            |    ⏳   |
-| RAG                  |    ⏳   |
-| API                  |    ⏳   |
-| Frontend             |    ⏳   |
+| Module | Status |
+|---------|:------:|
+| Logging | ✅ |
+| Configuration | ✅ |
+| PDF Loader | ✅ |
+| Metadata Generation | ✅ |
+| Corpus Statistics | ✅ |
+| Chunking Pipeline | ✅ |
+| Chunk Metadata | ✅ |
+| Chunk Statistics | ✅ |
+| OpenAI Embeddings | ✅ |
+| Batch Processing | ✅ |
+| Embedding Validation | ✅ |
+| Vector Store | ⏳ |
+| Retriever | ⏳ |
+| RAG Pipeline | ⏳ |
+| FastAPI | ⏳ |
+| Streamlit UI | ⏳ |
 
 ---
 
-# Upcoming Milestones
+# Next Milestones
 
-* Generate OpenAI embeddings
-* Build ChromaDB vector store
-* Implement semantic retrieval
-* Develop Retrieval-Augmented Generation pipeline
-* Build FastAPI backend
-* Develop Streamlit user interface
-* Add evaluation framework
-* Deploy application
+- Build ChromaDB vector index
+- Implement semantic retrieval
+- Add metadata filtering
+- Implement Retrieval-Augmented Generation (RAG)
+- Build FastAPI backend
+- Develop Streamlit interface
+- Add evaluation framework
+- Deploy using Docker
+
+---
+
+# Design Principles
+
+The project follows several software engineering principles:
+
+- Separation of Concerns (SoC)
+- Single Responsibility Principle (SRP)
+- Immutable Data Models
+- Configuration-driven Architecture
+- Modular Pipeline Design
+- Type-safe Data Flow
+- Production-grade Logging
+- Enterprise-ready RAG Architecture
 
 ---
