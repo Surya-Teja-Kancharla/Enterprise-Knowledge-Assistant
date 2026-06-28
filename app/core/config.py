@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 
     TOP_K: int = 5
 
-    CHUNK_SIZE: int = 800
+    CHUNK_SIZE: int = 900
 
     CHUNK_OVERLAP: int = 150
 

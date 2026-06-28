@@ -18,7 +18,6 @@ This module intentionally DOES NOT:
 
 from __future__ import annotations
 
-from app.core.config import settings
 from app.core.logger import get_logger
 import re
 from dataclasses import dataclass
@@ -31,7 +30,7 @@ import fitz
 logger = get_logger(__name__)
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class DocumentPage:
     """
     Represents a single page extracted from a PDF.
@@ -49,7 +48,7 @@ class PDFLoader:
 
     Example
     -------
-    loader = PDFLoader(settings.RAW_DATA_PATH)
+    loader = PDFLoader("data/raw")
     pages = loader.load_documents()
     """
 
@@ -107,11 +106,9 @@ class PDFLoader:
         Recursively discover PDF files.
         """
 
-        pdfs = sorted(
+        return sorted(
             self.data_directory.rglob(f"*{self.SUPPORTED_EXTENSION}")
         )
-
-        return pdfs
 
     # --------------------------------------------------------
     # Loading
@@ -127,8 +124,60 @@ class PDFLoader:
         extracted_pages: List[DocumentPage] = []
 
         try:
+            with fitz.open(pdf_path) as pdf:
 
-            pdf = fitz.open(pdf_path)
+                total_pages = pdf.page_count
+
+                logger.info(
+                    "%s contains %d pages",
+                    pdf_path.name,
+                    total_pages,
+                )
+
+                self.statistics["documents"] += 1
+
+                if (
+                    total_pages
+                    > self.statistics["largest_document_pages"]
+                ):
+                    self.statistics["largest_document_pages"] = total_pages
+                    self.statistics["largest_document"] = pdf_path.name
+
+                for page_index in range(total_pages):
+
+                    page = pdf.load_page(page_index)
+
+                    raw_text = page.get_text("text")
+
+                    cleaned = self._clean_text(raw_text)
+
+                    if not cleaned:
+                        logger.debug(
+                            "Skipping empty page %d in %s",
+                            page_index + 1,
+                            pdf_path.name,
+                        )
+                        continue
+
+                    metadata = self._build_metadata(
+                        pdf_path,
+                        page_index + 1,
+                    )
+
+                    extracted_pages.append(
+                        DocumentPage(
+                            document=pdf_path.name,
+                            page=page_index + 1,
+                            text=cleaned,
+                            metadata=metadata,
+                        )
+                    )
+
+                    logger.debug(
+                        "Extracted page %d from %s",
+                        page_index + 1,
+                        pdf_path.name,
+                    )
 
         except Exception as exc:
 
@@ -139,51 +188,6 @@ class PDFLoader:
             )
 
             return extracted_pages
-
-        total_pages = pdf.page_count
-
-        logger.info(
-            "%s contains %d pages",
-            pdf_path.name,
-            total_pages,
-        )
-
-        self.statistics["documents"] += 1
-
-        if total_pages > self.statistics["largest_document_pages"]:
-
-            self.statistics["largest_document_pages"] = total_pages
-            self.statistics["largest_document"] = pdf_path.name
-
-        for page_index in range(total_pages):
-
-            page = pdf.load_page(page_index)
-
-            raw_text = page.get_text("text")
-
-            cleaned = self._clean_text(raw_text)
-
-            metadata = self._build_metadata(
-                pdf_path,
-                page_index + 1,
-            )
-
-            extracted_pages.append(
-                DocumentPage(
-                    document=pdf_path.name,
-                    page=page_index + 1,
-                    text=cleaned,
-                    metadata=metadata,
-                )
-            )
-
-            logger.debug(
-                "Extracted page %d from %s",
-                page_index + 1,
-                pdf_path.name,
-            )
-
-        pdf.close()
 
         logger.info(
             "Finished %s",
@@ -305,3 +309,4 @@ class PDFLoader:
         )
 
         logger.info("===================================")
+        
