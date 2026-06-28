@@ -1,11 +1,9 @@
 ````markdown
 # Enterprise Knowledge Assistant
 
-An AI-powered Enterprise Knowledge Assistant that enables employees to query internal organizational documents using natural language. The application leverages a Retrieval-Augmented Generation (RAG) pipeline to retrieve relevant information from enterprise knowledge bases and generate grounded responses with source citations.
+An AI-powered Enterprise Knowledge Assistant that enables employees to query internal organizational documents using natural language.
 
 ## 1. Project Status
-
-# Project Status
 
 | Stage                         |    Status    |
 | ----------------------------- | :----------: |
@@ -17,19 +15,9 @@ An AI-powered Enterprise Knowledge Assistant that enables employees to query int
 | Semantic Retrieval            | ✅ Completed |
 | Prompt Engineering            | ✅ Completed |
 | RAG Pipeline                  | ✅ Completed |
-| FastAPI Backend               | ⏳ Upcoming  |
+| FastAPI Backend               | ✅ Completed |
 | Streamlit Frontend            | ⏳ Upcoming  |
 | Deployment                    | ⏳ Upcoming  |
-
-| ----------------------------- | :----------: |
-| Project Initialization | ✅ Completed |
-| Document Loading Pipeline | ✅ Completed |
-| Semantic Chunking Pipeline | ✅ Completed |
-
-## Completed
-
-- Recursive PDF discovery
-- Corpus analysis
 
 ## 2. Features
 
@@ -56,26 +44,21 @@ An AI-powered Enterprise Knowledge Assistant that enables employees to query int
 - Hallucination prevention
 - Source citations
 - Complete Retrieval-Augmented Generation (RAG) pipeline
+- FastAPI REST API
+- OpenAPI (Swagger) Documentation
+- Health Check Endpoint
+- Request Validation
+- Structured API Responses
+- Global Exception Handling
+- Request Logging Middleware
+- Response Latency Tracking
 
 ### Planned
 
-- FastAPI REST API
 - Streamlit Web Interface
 - Conversation Memory
 - Evaluation Framework
 - Docker Deployment
-
-- ChromaDB Vector Store
-- Hybrid Semantic Search
-- Retrieval-Augmented Generation (RAG)
-- FastAPI REST API
-- Streamlit Web Interface
-- Source Citations
-- Conversation Memory
-- Evaluation Framework
-- Docker Deployment
-
----
 
 ## 3. Tech Stack
 
@@ -88,316 +71,269 @@ An AI-powered Enterprise Knowledge Assistant that enables employees to query int
 | Vector Database | ChromaDB                       |
 | Retrieval       | MMR Similarity Search          |
 | LLM             | Groq Llama 3.3-70B Versatile   |
-| Backend         | FastAPI _(Upcoming)_           |
+| Backend         | FastAPI                        |
+| API Validation  | Pydantic v2                    |
+| ASGI Server     | Uvicorn                        |
 | Frontend        | Streamlit _(Upcoming)_         |
-
-| --------------- | ------------------------------------- |
-| Language | Python 3.11+ |
-| PDF Processing | PyMuPDF |
-| Chunking | Custom RecursiveCharacterTextSplitter |
-| Embeddings | BAAI/bge-base-en-v1.5 (local) |
-| Vector Database | ChromaDB _(Upcoming)_ |
-| LLM | Groq Llama 3.3 _(Upcoming)_ |
-| Backend | FastAPI _(Upcoming)_ |
-| Frontend | Streamlit _(Upcoming)_ |
-
----
-
-# Current Project Structure
-
-```text
-enterprise-knowledge-assistant/
-
-app/
-│
-├── core/
-│   ├── config.py
-│   └── logger.py
-│
-ingestion/
-│
-├── parsers/
-│   └── loader.py
-│
-├── chunking/
-│   └── chunker.py
-│
-├── embeddings/
-│   ├── __init__.py
-│   ├── models.py
-│   └── embeddings.py
-│
-scripts/
-│
-├── test_loader.py
-├── test_chunker.py
-└── test_embeddings.py
 
 ## 4. Current Project Structure
 
-```
-
-enterprise-knowledge-assistant/
+```text
+Enterprise Knowledge Assistant/
 ├── app/
-│ ├── core/
-│ │ ├── config.py
-│ │ └── logger.py
+│   ├── api/
+│   │   ├── main.py
+│   │   └── routes.py
+│   ├── schemas/
+│   │   └── api.py
+│   ├── core/
+│   │   ├── config.py
+│   │   └── logger.py
+│   ├── utils/
 ├── ingestion/
-│ ├── parsers/
-│ │ └── loader.py
-│ ├── chunking/
-│ │ └── chunker.py
-│ ├── embeddings/
-│ │ ├── embeddings.py
-│ │ └── models.py
-│ ├── vector_store/
-│ │ ├── chroma_store.py
-│ │ ├── indexer.py
-│ │ └── models.py
+│   ├── parsers/
+│   ├── chunking/
+│   ├── embeddings/
+│   └── vector_store/
 ├── retrieval/
-│ ├── retrieval.py
-│ └── filters.py
+│   ├── retrieval.py
+│   ├── models.py
+│   └── filters.py
 ├── services/
-│ ├── prompts.py
-│ └── rag.py
+│   ├── prompts.py
+│   └── rag.py
 ├── scripts/
-│ ├── test_loader.py
-│ ├── test_chunker.py
-│ ├── test_embeddings.py
-│ ├── test_indexer.py
-│ ├── test_retrieval.py
-│ └── test_rag.py
+│   ├── test_loader.py
+│   ├── test_chunker.py
+│   ├── test_embeddings.py
+│   ├── test_indexer.py
+│   ├── test_retrieval.py
+│   ├── test_rag.py
+│   └── test_api.py
 ├── data/
-│ ├── raw/
-│ ├── processed/
-│ └── vectorstore/
-├── logs/
-├── README.md
-└── requirements.txt
-
+├── vectorstore/
+└── logs/
 ```
 
 ## 5. Current Architecture
 
-```
-
+```text
 Enterprise PDFs
-│
-▼
+        │
+        ▼
 PDF Loader
-│
-▼
-Document Pages
-│
-▼
-Recursive Semantic Chunker
-│
-▼
-Document Chunks
-│
-▼
-BGE Embeddings
-│
-▼
-ChromaDB Vector Store
-│
-▼
-MMR Retriever
-│
-▼
-Prompt Builder
-│
-▼
+        │
+        ▼
+Recursive Chunking
+        │
+        ▼
+Local BGE Embeddings
+        │
+        ▼
+ChromaDB
+        │
+        ▼
+MMR Retrieval
+        │
+        ▼
+Prompt Engineering
+        │
+        ▼
 Groq LLM
-│
-▼
-Grounded Answer
-│
-▼
-Source Citations
-
+        │
+        ▼
+FastAPI REST API
+        │
+        ▼
+JSON Response
 ```
 
-## 6. Vector Database
+## 6. FastAPI Backend
 
-The project stores embeddings in a persistent ChromaDB vector database for efficient semantic retrieval.
+The Enterprise Knowledge Assistant exposes a REST API built with FastAPI.
+
+### Endpoints
+
+| Method | Endpoint  | Description                         |
+| ------ | --------- | ----------------------------------- |
+| GET    | `/`       | API information                     |
+| GET    | `/health` | Health status                       |
+| POST   | `/ask`    | Query the enterprise knowledge base |
+| GET    | `/docs`   | Interactive Swagger documentation   |
+| GET    | `/redoc`  | ReDoc documentation                 |
+
+---
+
+### Request
+
+```json
+{
+  "question": "What is the password policy?"
+}
+```
+
+---
+
+### Response
+
+```json
+{
+  "answer": "...",
+  "sources": [
+    {
+      "document": "Password Policy.pdf",
+      "page": 12,
+      "category": "compliance",
+      "chunk_id": "..."
+    }
+  ],
+  "confidence": 0.94,
+  "latency": 1.62,
+  "retrieved_documents": 5
+}
+```
+
+---
 
 ### Features
-- Persistent local storage
-- Batch vector insertion
-- Incremental indexing
-- Duplicate prevention
-- Metadata preservation
-- Similarity search
-- Collection statistics
 
-### Why ChromaDB?
-ChromaDB was selected because it provides:
-- Native Python integration
-- Persistent on-disk storage
-- Fast cosine similarity search
-- Metadata filtering
-- LangChain compatibility
-- Lightweight deployment
+- Automatic OpenAPI generation
+- Swagger UI
+- Pydantic validation
+- Request logging
+- Exception handling
+- Response models
+- Health monitoring
 
-## 7. Semantic Retrieval
-
-The retrieval layer performs semantic document search using Maximal Marginal Relevance (MMR).
-
-### Retrieval Configuration
-
-| Parameter | Value |
-|-----------|------:|
-| Search Type | MMR |
-| Top K | 5 |
-| Distance Metric | Cosine Similarity |
-
-### Why MMR?
-Instead of returning the five most similar chunks, MMR balances relevance and diversity by reducing duplicate or overlapping results.
-
-Benefits include:
-- Reduced duplicate chunks
-- Better coverage of large documents
-- Higher answer quality
-- Improved context diversity
-
-## 8. Prompt Engineering
+## 7. Prompt Engineering
 
 The language model receives a constrained system prompt to ensure grounded responses.
 
 Rules enforced:
+
 - Answer only using retrieved context.
 - Never fabricate information.
 - Always provide source citations.
 - If no supporting context exists, respond exactly:
 
-```
-
+```text
 I could not find this information in the provided knowledge base.
-
 ```
 
 This approach minimizes hallucinations and ensures enterprise-safe responses.
 
-## 9. Retrieval-Augmented Generation (RAG) Pipeline
+## 8. Retrieval-Augmented Generation (RAG) Pipeline
 
 The application combines semantic retrieval with large language model generation.
 
-```
-
+```text
 User Question
-│
-▼
+        │
+        ▼
 MMR Retriever
-│
-▼
+        │
+        ▼
 Top 5 Relevant Chunks
-│
-▼
+        │
+        ▼
 Prompt Builder
-│
-▼
+        │
+        ▼
 Groq Llama 3.3
-│
-▼
+        │
+        ▼
 Grounded Answer
-│
-▼
+        │
+        ▼
 Source Citations
-
 ```
 
 Each response includes:
+
 - Grounded answer
 - Source document citations
 - Retrieved document count
 - End-to-end latency
 
-## 10. Current Processing Pipeline
+## 9. Current Processing Pipeline
 
-```
-
+```text
 Enterprise PDFs
-│
-▼
+        │
+        ▼
 PDF Loader
-│
-▼
-Page Extraction
-│
-▼
-Metadata Generation
-│
-▼
+        │
+        ▼
 Recursive Chunking
-│
-▼
+        │
+        ▼
 Local BGE Embeddings
-│
-▼
-ChromaDB Vector Store
-│
-▼
+        │
+        ▼
+ChromaDB
+        │
+        ▼
 MMR Retrieval
-│
-▼
+        │
+        ▼
 Prompt Engineering
-│
-▼
+        │
+        ▼
 Groq LLM
-│
-▼
-Grounded Response
-
+        │
+        ▼
+FastAPI REST API
+        │
+        ▼
+JSON Response
 ```
 
-## 11. Current Progress
+## 10. Current Progress
 
-| Module | Status |
-|--------|:------:|
-| Logging | ✅ |
-| Configuration | ✅ |
-| PDF Loader | ✅ |
-| Metadata Generation | ✅ |
-| Corpus Statistics | ✅ |
-| Chunking Pipeline | ✅ |
-| Chunk Metadata | ✅ |
-| Chunk Statistics | ✅ |
-| Local BGE Embeddings | ✅ |
-| Batch Processing | ✅ |
-| Embedding Validation | ✅ |
-| ChromaDB Vector Store | ✅ |
-| Vector Indexing | ✅ |
-| Semantic Retrieval | ✅ |
-| MMR Search | ✅ |
-| Prompt Engineering | ✅ |
-| Hallucination Prevention | ✅ |
-| RAG Pipeline | ✅ |
-| Source Citations | ✅ |
-| FastAPI | ⏳ |
-| Streamlit UI | ⏳ |
+| Module                | Status |
+| --------------------- | :----: |
+| Logging               |   ✅   |
+| Configuration         |   ✅   |
+| PDF Loader            |   ✅   |
+| Chunking Pipeline     |   ✅   |
+| Local Embeddings      |   ✅   |
+| ChromaDB Vector Store |   ✅   |
+| Vector Indexing       |   ✅   |
+| Semantic Retrieval    |   ✅   |
+| MMR Search            |   ✅   |
+| Prompt Engineering    |   ✅   |
+| RAG Pipeline          |   ✅   |
+| Source Citations      |   ✅   |
+| FastAPI Backend       |   ✅   |
+| Swagger Documentation |   ✅   |
+| Health Monitoring     |   ✅   |
+| Streamlit UI          |   ⏳   |
 
-## 12. Next Milestones
+## 11. Next Milestones
 
-- Build FastAPI backend
-- Create REST endpoints
-- Develop Streamlit interface
+- Build Streamlit user interface
 - Add conversation memory
-- Implement evaluation framework
+- Implement authentication
+- Add evaluation framework
 - Dockerize the application
 - Deploy the complete system
 
-## 13. Pipeline Performance
+## 12. Pipeline Performance
 
-The end-to-end RAG pipeline has been validated against a sample enterprise corpus.
+| Metric               |                 Value |
+| -------------------- | --------------------: |
+| Documents            |               22 PDFs |
+| Pages                |                   445 |
+| Chunks Indexed       |                   671 |
+| Embedding Model      | BAAI/bge-base-en-v1.5 |
+| Vector Database      |              ChromaDB |
+| Retrieval            |                   MMR |
+| Top K                |                     5 |
+| API Framework        |               FastAPI |
+| Test Queries         |                    10 |
+| Successful Responses |                    10 |
 
-| Metric | Value |
-|--------|------:|
-| Documents | 22 PDFs |
-| Pages | 445 |
-| Embedding Model | BAAI/bge-base-en-v1.5 |
-| Retrieval Strategy | MMR |
-| Top K | 5 |
+Each response is generated through the complete Retrieval-Augmented Generation (RAG) pipeline and returned as a structured JSON response with supporting source citations.
 | Vector Database | ChromaDB |
 | Test Queries | 10 |
 | Successful Responses | 10 |
@@ -413,7 +349,8 @@ logs/
 
 README.md
 requirements.txt
-```
+
+````
 
 ---
 
@@ -442,7 +379,7 @@ EmbeddedChunk
         │
         ▼
 Ready for ChromaDB
-```
+````
 
 ---
 

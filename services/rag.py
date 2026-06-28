@@ -36,6 +36,7 @@ class RAGResponse:
     sources: list[dict[str, Any]] = field(default_factory=list)
     retrieved_documents: int = 0
     latency: float = 0.0
+    confidence: float = 1.0
 
 
 @dataclass
@@ -85,6 +86,32 @@ class RAGService:
         logger.info("RAG service initialized.")
         logger.info("Model : %s", self.model_name)
 
+    @staticmethod
+    def _chunk_metadata(
+        chunk,
+    ) -> dict[str, Any]:
+        """
+        Return chunk metadata for dict or object chunks.
+        """
+        if isinstance(chunk, dict):
+            return chunk.get("metadata", {}) or {}
+
+        return getattr(chunk, "metadata", {}) or {}
+
+    @staticmethod
+    def _chunk_value(
+        chunk,
+        key: str,
+        default: Any = None,
+    ) -> Any:
+        """
+        Return chunk field value for dict or object chunks.
+        """
+        if isinstance(chunk, dict):
+            return chunk.get(key, default)
+
+        return getattr(chunk, key, default)
+
     def _format_context(
         self,
         documents,
@@ -104,13 +131,13 @@ class RAGService:
 
         for index, chunk in enumerate(chunks, start=1):
 
-            metadata = getattr(chunk, "metadata", {}) or {}
+            metadata = self._chunk_metadata(chunk)
 
             section = (
                 f"[Document {index}]\n"
-                f"Source: {getattr(chunk, 'document', metadata.get('document'))}\n"
-                f"Page: {getattr(chunk, 'page', metadata.get('page'))}\n\n"
-                f"{getattr(chunk, 'text', '')}"
+                f"Source: {self._chunk_value(chunk, 'document', metadata.get('document'))}\n"
+                f"Page: {self._chunk_value(chunk, 'page', metadata.get('page'))}\n\n"
+                f"{self._chunk_value(chunk, 'text', '')}"
             )
 
             sections.append(section)
@@ -135,7 +162,10 @@ class RAGService:
         )
 
         docs = [
-            Document(page_content=chunk.text, metadata=chunk.metadata)
+            Document(
+                page_content=self._chunk_value(chunk, "text", ""),
+                metadata=self._chunk_metadata(chunk),
+            )
             for chunk in chunks
         ]
 
@@ -195,8 +225,8 @@ class RAGService:
         except Exception:
             return False
 
-    @staticmethod
     def extract_sources(
+        self,
         documents,
     ) -> list[dict]:
         """
@@ -215,10 +245,13 @@ class RAGService:
 
         for chunk in chunks:
 
+            metadata = self._chunk_metadata(chunk)
+
             source = {
-                "document": getattr(chunk, "document", None) or chunk.metadata.get("document"),
-                "page": getattr(chunk, "page", None) or chunk.metadata.get("page"),
-                "category": getattr(chunk, "category", None) or chunk.metadata.get("category"),
+                "document": self._chunk_value(chunk, "document", metadata.get("document")),
+                "page": self._chunk_value(chunk, "page", metadata.get("page")),
+                "category": self._chunk_value(chunk, "category", metadata.get("category")),
+                "chunk_id": self._chunk_value(chunk, "chunk_id", metadata.get("chunk_id", "")),
             }
 
             key = (source["document"], source["page"])
@@ -264,8 +297,8 @@ class RAGService:
             logger.info(
                 "%d. %s (Page %s)",
                 index,
-                getattr(chunk, "document", chunk.metadata.get("document")),
-                getattr(chunk, "page", chunk.metadata.get("page")),
+                self._chunk_value(chunk, "document", self._chunk_metadata(chunk).get("document")),
+                self._chunk_value(chunk, "page", self._chunk_metadata(chunk).get("page")),
             )
 
         logger.info("=" * 50)
@@ -534,6 +567,11 @@ class RAGService:
                     else len(documents)
                 ),
                 latency=latency,
+                confidence=(
+                    documents.average_score
+                    if isinstance(documents, RetrievalResponse)
+                    else 0.0
+                ),
             )
 
         except Exception:
@@ -564,7 +602,7 @@ class RAGService:
             sources=[],
             retrieved_documents=0,
             latency=0.0,
-
+            confidence=0.0,
         )
     
     # ==========================================================

@@ -360,8 +360,26 @@ class EnterpriseRetriever:
 
         return retriever
 
+    def _create_vectorstore(self):
+        """
+        Create a Chroma vector store instance for direct scored search.
+        """
+
+        embedding_function = HuggingFaceEmbeddings(
+            model_name=settings.EMBEDDING_MODEL,
+            encode_kwargs={
+                "normalize_embeddings": True,
+            },
+        )
+
+        return Chroma(
+            persist_directory=str(self.persist_directory),
+            collection_name=self.collection_name,
+            embedding_function=embedding_function,
+        )
+
     # --------------------------------------------------------
-    # MMR Retrieval
+    # Similarity Retrieval
     # --------------------------------------------------------
 
     def retrieve(
@@ -376,15 +394,16 @@ class EnterpriseRetriever:
         self._validate_query(query)
 
         logger.info(
-            "Running MMR retrieval..."
+            "Running similarity retrieval..."
         )
 
         start_time = time.perf_counter()
 
-        retriever = self._build_retriever()
+        vectorstore = self._create_vectorstore()
 
-        documents = retriever.invoke(
-            query
+        documents = vectorstore.similarity_search_with_relevance_scores(
+            query,
+            k=settings.TOP_K,
         )
 
         latency_ms = (
@@ -394,7 +413,7 @@ class EnterpriseRetriever:
 
         response = RetrievalResponse(
             query=query,
-            search_type="mmr",
+            search_type="similarity",
             top_k=settings.TOP_K,
             latency_ms=round(
                 latency_ms,
@@ -405,7 +424,7 @@ class EnterpriseRetriever:
             ),
         )
 
-        for index, document in enumerate(
+        for index, (document, score) in enumerate(
             documents,
             start=1,
         ):
@@ -421,7 +440,7 @@ class EnterpriseRetriever:
                         "",
                     ),
                     text=document.page_content,
-                    score=1.0,
+                    score=round(float(score), 4),
                     metadata=metadata,
                     document=metadata.get(
                         "document",
@@ -510,18 +529,10 @@ class EnterpriseRetriever:
             embedding_function=embedding_function,
         )
 
-        retriever = vectorstore.as_retriever(
-            search_type="mmr",
-            search_kwargs={
-                "k": settings.TOP_K,
-                "fetch_k": 20,
-                "lambda_mult": 0.5,
-                "filter": metadata_filter,
-            },
-        )
-
-        documents = retriever.invoke(
-            query
+        documents = self._create_vectorstore().similarity_search_with_relevance_scores(
+            query,
+            k=settings.TOP_K,
+            filter=metadata_filter,
         )
 
         latency_ms = (
@@ -531,7 +542,7 @@ class EnterpriseRetriever:
 
         response = RetrievalResponse(
             query=query,
-            search_type="mmr",
+            search_type="similarity",
             top_k=settings.TOP_K,
             latency_ms=round(
                 latency_ms,
@@ -542,7 +553,7 @@ class EnterpriseRetriever:
             ),
         )
 
-        for index, document in enumerate(
+        for index, (document, score) in enumerate(
             documents,
             start=1,
         ):
@@ -558,7 +569,7 @@ class EnterpriseRetriever:
                         "",
                     ),
                     text=document.page_content,
-                    score=1.0,
+                    score=round(float(score), 4),
                     metadata=metadata,
                     document=metadata.get(
                         "document",
