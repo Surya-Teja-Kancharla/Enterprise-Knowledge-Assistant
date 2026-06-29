@@ -20,6 +20,8 @@ from retrieval.retrieval import EnterpriseRetriever
 from retrieval.models import RetrievalResponse, RetrievedChunk
 from langchain_core.documents import Document
 from services.prompts import build_prompt as build_prompt_template
+from memory.manager import ConversationManager
+from memory.conversation import ConversationMemory
 
 
 load_dotenv()
@@ -82,6 +84,12 @@ class RAGService:
 
         self.retriever = EnterpriseRetriever()
         self.statistics = RAGStatistics()
+
+        # ---------------------------------------------------------
+        # Conversation Memory
+        # ---------------------------------------------------------
+        self.memory_manager = ConversationManager()
+        logger.info("Conversation memory initialized.")
 
         logger.info("RAG service initialized.")
         logger.info("Model : %s", self.model_name)
@@ -422,6 +430,37 @@ class RAGService:
         return prompt
 
     # ==========================================================
+    # Conversation Context
+    # ==========================================================
+
+    def build_prompt_with_memory(
+        self,
+        question: str,
+        documents,
+        session_id: str,
+    ) -> str:
+        """
+        Build the prompt including previous conversation history.
+        """
+        prompt = self.build_prompt(
+            question=question,
+            documents=documents,
+        )
+        memory = self.memory_manager.get_session(session_id)
+        history = memory.format_history()
+
+        if not history:
+            return prompt
+
+        return (
+            "Previous Conversation\n"
+            "=====================\n\n"
+            f"{history}\n\n"
+            "=====================\n\n"
+            f"{prompt}"
+        )
+
+    # ==========================================================
     # Generation Test
     # ==========================================================
 
@@ -474,6 +513,7 @@ class RAGService:
     def answer_question(
         self,
         question: str,
+        session_id: str = "default",
     ) -> RAGResponse:
         """
         Complete RAG pipeline.
@@ -520,9 +560,10 @@ class RAGService:
             # Prompt
             # -----------------------------------------
 
-            prompt = self.build_prompt(
-                question,
-                documents,
+            prompt = self.build_prompt_with_memory(
+                question=question,
+                documents=documents,
+                session_id=session_id,
             )
 
             # -----------------------------------------
@@ -531,6 +572,19 @@ class RAGService:
 
             answer = self._generate_answer(
                 prompt
+            )
+
+            # -----------------------------------------
+            # Store Conversation
+            # -----------------------------------------
+            memory = self.memory_manager.get_session(session_id)
+            memory.add(
+                question=question,
+                answer=answer,
+                sources=[
+                    source["document"]
+                    for source in self.extract_sources(documents)
+                ],
             )
 
             # -----------------------------------------

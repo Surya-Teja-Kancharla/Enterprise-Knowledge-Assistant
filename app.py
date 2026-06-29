@@ -10,6 +10,7 @@ custom styling and session state.
 from __future__ import annotations
 
 from datetime import datetime
+import uuid
 
 import requests
 import streamlit as st
@@ -52,6 +53,16 @@ BORDER_COLOR = "#E2E5EA"
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+# ----------------------------------------------------------
+# Conversation Session
+# ----------------------------------------------------------
+
+if "session_id" not in st.session_state:
+
+    st.session_state.session_id = str(
+        uuid.uuid4()
+    )
 
 if "api_status" not in st.session_state:
     st.session_state.api_status = "Unknown"
@@ -185,6 +196,11 @@ with st.sidebar:
 
     st.subheader("Session")
 
+    st.caption(
+        f"Session ID\n"
+        f"{st.session_state.session_id[:8]}..."
+    )
+
     st.metric(
         "Questions Asked",
         len(st.session_state.messages),
@@ -306,7 +322,10 @@ with col2:
 if clear_button:
     st.session_state.messages = []
     st.session_state.question_input = ""
-    st.success("Conversation cleared.")
+
+    # Start a brand-new conversation
+    st.session_state.session_id = str(uuid.uuid4())
+    st.success("Conversation memory cleared.")
     st.rerun()
 
 # ----------------------------------------------------------------------
@@ -327,9 +346,11 @@ if ask_button:
                     f"{API_BASE_URL}/ask",
                     json={
                         "question": question,
+                        "session_id": st.session_state.session_id,
                     },
                     timeout=120,
                 )
+
                 response.raise_for_status()
                 result = response.json()
                 st.session_state.messages.append(

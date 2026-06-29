@@ -119,6 +119,7 @@ async def ask_question(
     try:
         result = rag_service.answer_question(
             request.question,
+            session_id=request.session_id or "default",
         )
 
     except Exception as exc:

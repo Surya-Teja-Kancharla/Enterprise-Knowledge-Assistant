@@ -32,11 +32,20 @@ class QuestionRequest(BaseModel):
         ],
     )
 
+    session_id: str | None = Field(
+        default=None,
+        description="Optional conversation session identifier for follow-up questions.",
+        examples=[
+            "optional-session-id",
+        ],
+    )
+
     model_config = ConfigDict(
         extra="forbid",
         json_schema_extra={
             "example": {
-                "question": "What is the password policy?"
+                "question": "What is the password policy?",
+                "session_id": "optional-session-id",
             }
         },
     )

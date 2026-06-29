@@ -12,11 +12,19 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 from pydantic_settings import (
     BaseSettings,
     SettingsConfigDict,
 )
+
+
+class MemorySettings(BaseModel):
+    """
+    Conversation memory configuration.
+    """
+
+    max_history: int = 5
 
 
 class Settings(BaseSettings):
@@ -145,6 +153,14 @@ class Settings(BaseSettings):
     SAVE_CHAT_HISTORY: bool = False
 
     # ==========================================================
+    # Conversation Memory
+    # ==========================================================
+
+    MEMORY_MAX_HISTORY: int = 5
+
+    memory: MemorySettings = MemorySettings()
+
+    # ==========================================================
     # Pydantic Configuration
     # ==========================================================
 
@@ -162,5 +178,6 @@ def get_settings() -> Settings:
     Return cached application settings.
     """
     return Settings()
+
 
 settings = get_settings()
