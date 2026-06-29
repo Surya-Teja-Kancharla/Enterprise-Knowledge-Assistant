@@ -41,6 +41,12 @@ from retrieval.filters import (
     page_filter,
 )
 
+from langchain_core.documents import Document
+
+from retrieval.hybrid import HybridRetriever
+from retrieval.bm25 import BM25Retriever
+from retrieval.merger import HybridMerger
+
 logger = get_logger(__name__)
 
 
@@ -73,6 +79,16 @@ class EnterpriseRetriever:
         self.collection = self._load_collection()
 
         self.embedding_model = self._load_embedding_model()
+
+        #
+        # Build retrievers
+        #
+
+        self.vectorstore = self._create_vectorstore()
+
+        self.langchain_retriever = self._build_retriever()
+
+        self.hybrid_retriever = self._build_hybrid_retriever()
 
         self.statistics = {
             "queries": 0,
@@ -378,6 +394,50 @@ class EnterpriseRetriever:
             embedding_function=embedding_function,
         )
 
+    def _build_hybrid_retriever(
+        self,
+    ) -> HybridRetriever:
+        """
+        Build Hybrid Retriever.
+
+        Combines
+
+        - Chroma MMR
+        - BM25
+        - Reciprocal Rank Fusion
+        """
+
+        logger.info(
+            "Building Hybrid Retriever..."
+        )
+
+        data = self.collection.get(
+            include=[
+                "documents",
+                "metadatas",
+            ]
+        )
+
+        documents: list[Document] = []
+
+        for text, metadata in zip(
+            data["documents"],
+            data["metadatas"],
+        ):
+
+            documents.append(
+                Document(
+                    page_content=text,
+                    metadata=metadata,
+                )
+            )
+
+        return HybridRetriever(
+            vector_retriever=self.langchain_retriever,
+            documents=documents,
+            top_k=settings.TOP_K,
+        )
+
     # --------------------------------------------------------
     # Similarity Retrieval
     # --------------------------------------------------------
@@ -399,12 +459,7 @@ class EnterpriseRetriever:
 
         start_time = time.perf_counter()
 
-        vectorstore = self._create_vectorstore()
-
-        documents = vectorstore.similarity_search_with_relevance_scores(
-            query,
-            k=settings.TOP_K,
-        )
+        documents = self.hybrid_retriever.retrieve(query)
 
         latency_ms = (
             time.perf_counter()
@@ -413,7 +468,7 @@ class EnterpriseRetriever:
 
         response = RetrievalResponse(
             query=query,
-            search_type="similarity",
+            search_type="hybrid",
             top_k=settings.TOP_K,
             latency_ms=round(
                 latency_ms,
@@ -424,11 +479,7 @@ class EnterpriseRetriever:
             ),
         )
 
-        for index, (document, score) in enumerate(
-            documents,
-            start=1,
-        ):
-
+        for index, document in enumerate(documents, start=1):
             metadata = dict(
                 document.metadata
             )
@@ -440,7 +491,14 @@ class EnterpriseRetriever:
                         "",
                     ),
                     text=document.page_content,
-                    score=round(float(score), 4),
+                    #
+                    # Hybrid retrieval currently uses
+                    # Reciprocal Rank Fusion.
+                    # Exact similarity scores are
+                    # unavailable after rank fusion.
+                    #
+
+                    score=1.0,
                     metadata=metadata,
                     document=metadata.get(
                         "document",
@@ -542,7 +600,7 @@ class EnterpriseRetriever:
 
         response = RetrievalResponse(
             query=query,
-            search_type="similarity",
+            search_type="hybrid",
             top_k=settings.TOP_K,
             latency_ms=round(
                 latency_ms,

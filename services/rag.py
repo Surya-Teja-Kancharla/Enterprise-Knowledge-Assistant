@@ -16,7 +16,7 @@ from groq import Groq
 
 from dotenv import load_dotenv
 
-from retrieval.retrieval import EnterpriseRetriever
+from retrieval.retrieval import HybridRetriever
 from retrieval.models import RetrievalResponse, RetrievedChunk
 from langchain_core.documents import Document
 from services.prompts import build_prompt as build_prompt_template
@@ -82,7 +82,7 @@ class RAGService:
             api_key=api_key,
         )
 
-        self.retriever = EnterpriseRetriever()
+        self.retriever = HybridRetriever()
         self.statistics = RAGStatistics()
 
         # ---------------------------------------------------------
