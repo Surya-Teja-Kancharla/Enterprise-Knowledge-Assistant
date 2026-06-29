@@ -1,0 +1,41 @@
+services:
+  enterprise-knowledge-assistant:
+    container_name: enterprise-knowledge-assistant
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: enterprise-knowledge-assistant:latest
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    ports:
+      # FastAPI
+      - "8000:8000"
+
+      # Streamlit
+      - "8501:8501"
+
+    volumes:
+      # Source Code (Live Reload)
+      - .:/app
+
+      # Enterprise Documents
+      - ./data:/app/data
+
+      # Persistent Chroma Vector Store
+      - ./data/vectorstore:/app/data/vectorstore
+
+      # Logs
+      - ./logs:/app/logs
+
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+    stdin_open: true
+    tty: true
+  
