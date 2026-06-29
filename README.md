@@ -435,3 +435,7 @@ The system prompt instructs the model to answer only from retrieved context and 
 ## Demo
 
 [Watch the demo on YouTube](https://youtu.be/tSLNAQEp4Dg)
+
+## System Design Document
+
+[View the system design document](assets/System Design Document.pdf)
