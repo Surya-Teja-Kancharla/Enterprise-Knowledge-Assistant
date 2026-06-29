@@ -439,3 +439,7 @@ The system prompt instructs the model to answer only from retrieved context and 
 ## System Design Document
 
 [View the system design document](assets/System Design Document.pdf)
+
+## High Level Architecture
+
+[View the system design document](assets\enterprise_knowledge_assistant_architecture.png)
