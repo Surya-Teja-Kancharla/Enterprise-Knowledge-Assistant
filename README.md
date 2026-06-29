@@ -442,4 +442,4 @@ The system prompt instructs the model to answer only from retrieved context and 
 
 ## High Level Architecture
 
-[View the system design document](assets\enterprise_knowledge_assistant_architecture.png)
+[View the high level architecture](assets/enterprise_knowledge_assistant_architecture.png)
