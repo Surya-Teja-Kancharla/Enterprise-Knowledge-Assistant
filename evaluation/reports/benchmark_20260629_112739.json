@@ -1,0 +1,351 @@
+{
+    "questions": 20,
+    "document_accuracy": 90.0,
+    "page_accuracy": 35.0,
+    "groundedness": 90.0,
+    "retrieval_precision": 36.0,
+    "keyword_accuracy": 65.08,
+    "average_latency_ms": 46.1,
+    "results": [
+        {
+            "question": "What is the password policy?",
+            "expected_document": "Password Policy.pdf",
+            "retrieved_documents": [
+                "NovaDesk User Guide.pdf",
+                "Password Policy.pdf",
+                "Password Policy.pdf",
+                "ISO 27001 Policy.pdf",
+                "Employee Onboarding.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.4,
+            "keyword_accuracy": 0.6,
+            "latency_ms": 94.86
+        },
+        {
+            "question": "What is GDPR?",
+            "expected_document": "GDPR Policy.pdf",
+            "retrieved_documents": [
+                "Password Policy.pdf",
+                "GDPR Policy.pdf",
+                "GDPR Policy.pdf",
+                "GDPR Policy.pdf",
+                "Change Management.pdf"
+            ],
+            "document_match": true,
+            "page_match": true,
+            "grounded": true,
+            "retrieval_precision": 0.6,
+            "keyword_accuracy": 0.75,
+            "latency_ms": 38.28
+        },
+        {
+            "question": "What is the lawful basis for processing personal data?",
+            "expected_document": "GDPR Policy.pdf",
+            "retrieved_documents": [
+                "GDPR Policy.pdf",
+                "API Documentation.pdf",
+                "Employee Onboarding.pdf",
+                "API Documentation.pdf",
+                "GDPR Policy.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.4,
+            "keyword_accuracy": 0.5,
+            "latency_ms": 45.87
+        },
+        {
+            "question": "How should user accounts be managed according to ISO 27001?",
+            "expected_document": "ISO 27001 Policy.pdf",
+            "retrieved_documents": [
+                "ISO 27001 Policy.pdf",
+                "Developer Guide.pdf",
+                "Incident Response.pdf",
+                "Employee Onboarding.pdf",
+                "ISO 27001 Policy.pdf"
+            ],
+            "document_match": true,
+            "page_match": true,
+            "grounded": true,
+            "retrieval_precision": 0.4,
+            "keyword_accuracy": 1.0,
+            "latency_ms": 47.34
+        },
+        {
+            "question": "How many casual leaves are allowed?",
+            "expected_document": "Leave Policy.pdf",
+            "retrieved_documents": [
+                "Customer FAQ.pdf",
+                "Infrastructure Guide.pdf",
+                "API Documentation.pdf",
+                "API Documentation.pdf",
+                "NovaDesk User Guide.pdf"
+            ],
+            "document_match": false,
+            "page_match": false,
+            "grounded": false,
+            "retrieval_precision": 0.0,
+            "keyword_accuracy": 0.0,
+            "latency_ms": 52.9
+        },
+        {
+            "question": "What is the work from home policy?",
+            "expected_document": "Work From Home Policy.pdf",
+            "retrieved_documents": [
+                "Work From Home Policy.pdf",
+                "Employee Handbook.pdf",
+                "GDPR Policy.pdf",
+                "Travel Policy.pdf",
+                "Billing FAQ.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.2,
+            "keyword_accuracy": 0.667,
+            "latency_ms": 43.06
+        },
+        {
+            "question": "What should new employees complete during onboarding?",
+            "expected_document": "Employee Onboarding.pdf",
+            "retrieved_documents": [
+                "Employee Handbook.pdf",
+                "ISO 27001 Policy.pdf",
+                "Employee Onboarding.pdf",
+                "API Documentation.pdf",
+                "Code of Conduct.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.2,
+            "keyword_accuracy": 0.75,
+            "latency_ms": 42.99
+        },
+        {
+            "question": "What are the employee code of conduct expectations?",
+            "expected_document": "Code of Conduct.pdf",
+            "retrieved_documents": [
+                "Employee Onboarding.pdf",
+                "Employee Onboarding.pdf",
+                "Employee Handbook.pdf",
+                "API Documentation.pdf",
+                "API Documentation.pdf"
+            ],
+            "document_match": false,
+            "page_match": false,
+            "grounded": false,
+            "retrieval_precision": 0.0,
+            "keyword_accuracy": 0.75,
+            "latency_ms": 42.42
+        },
+        {
+            "question": "Explain the incident response procedure.",
+            "expected_document": "Incident Response.pdf",
+            "retrieved_documents": [
+                "Incident Response.pdf",
+                "API Documentation.pdf",
+                "Incident Response.pdf",
+                "Database Backup Manual.pdf",
+                "Employee Onboarding.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.4,
+            "keyword_accuracy": 0.5,
+            "latency_ms": 38.48
+        },
+        {
+            "question": "What are the stages of change management?",
+            "expected_document": "Change Management.pdf",
+            "retrieved_documents": [
+                "Change Management.pdf",
+                "Change Management.pdf",
+                "Software Release Process.pdf",
+                "Customer FAQ.pdf",
+                "Software Release Process.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.4,
+            "keyword_accuracy": 1.0,
+            "latency_ms": 35.54
+        },
+        {
+            "question": "Describe the software release process.",
+            "expected_document": "Software Release Process.pdf",
+            "retrieved_documents": [
+                "Software Release Process.pdf",
+                "Employee Onboarding.pdf",
+                "Software Release Process.pdf",
+                "Database Backup Manual.pdf",
+                "Employee Onboarding.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.4,
+            "keyword_accuracy": 0.25,
+            "latency_ms": 39.88
+        },
+        {
+            "question": "How should database backups be performed?",
+            "expected_document": "Database Backup Manual.pdf",
+            "retrieved_documents": [
+                "Database Backup Manual.pdf",
+                "Developer Guide.pdf",
+                "Database Backup Manual.pdf",
+                "Database Backup Manual.pdf",
+                "Database Backup Manual.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.8,
+            "keyword_accuracy": 0.5,
+            "latency_ms": 40.37
+        },
+        {
+            "question": "How do I create a customer in NovaCRM?",
+            "expected_document": "NovaCRM User Guide.pdf",
+            "retrieved_documents": [
+                "NovaCRM User Guide.pdf",
+                "Database Backup Manual.pdf",
+                "API Documentation.pdf",
+                "Database Backup Manual.pdf",
+                "Billing FAQ.pdf"
+            ],
+            "document_match": true,
+            "page_match": true,
+            "grounded": true,
+            "retrieval_precision": 0.2,
+            "keyword_accuracy": 0.75,
+            "latency_ms": 42.45
+        },
+        {
+            "question": "How do I reset my password?",
+            "expected_document": "Password Policy.pdf",
+            "retrieved_documents": [
+                "Password Policy.pdf",
+                "NovaDesk User Guide.pdf",
+                "API Documentation.pdf",
+                "API Documentation.pdf",
+                "API Documentation.pdf"
+            ],
+            "document_match": true,
+            "page_match": true,
+            "grounded": true,
+            "retrieval_precision": 0.2,
+            "keyword_accuracy": 0.75,
+            "latency_ms": 37.12
+        },
+        {
+            "question": "What is NovaDesk?",
+            "expected_document": "Customer FAQ.pdf",
+            "retrieved_documents": [
+                "Customer FAQ.pdf",
+                "Developer Guide.pdf",
+                "NovaDesk User Guide.pdf",
+                "Developer Guide.pdf",
+                "Database Backup Manual.pdf"
+            ],
+            "document_match": true,
+            "page_match": true,
+            "grounded": true,
+            "retrieval_precision": 0.2,
+            "keyword_accuracy": 0.75,
+            "latency_ms": 38.66
+        },
+        {
+            "question": "How do users update their profile settings in NovaDesk?",
+            "expected_document": "NovaDesk User Guide.pdf",
+            "retrieved_documents": [
+                "API Documentation.pdf",
+                "API Documentation.pdf",
+                "Customer FAQ.pdf",
+                "Database Backup Manual.pdf",
+                "NovaDesk User Guide.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.2,
+            "keyword_accuracy": 0.5,
+            "latency_ms": 49.26
+        },
+        {
+            "question": "How do I create a user using the API?",
+            "expected_document": "API Documentation.pdf",
+            "retrieved_documents": [
+                "ISO 27001 Policy.pdf",
+                "Employee Handbook.pdf",
+                "API Documentation.pdf",
+                "API Documentation.pdf",
+                "API Documentation.pdf"
+            ],
+            "document_match": true,
+            "page_match": true,
+            "grounded": true,
+            "retrieval_precision": 0.6,
+            "keyword_accuracy": 1.0,
+            "latency_ms": 46.02
+        },
+        {
+            "question": "What HTTP status codes are commonly used by the API?",
+            "expected_document": "API Documentation.pdf",
+            "retrieved_documents": [
+                "API Documentation.pdf",
+                "GDPR Policy.pdf",
+                "API Documentation.pdf",
+                "API Documentation.pdf",
+                "API Documentation.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.8,
+            "keyword_accuracy": 0.25,
+            "latency_ms": 46.8
+        },
+        {
+            "question": "How do I retrieve an asset using the API?",
+            "expected_document": "API Documentation.pdf",
+            "retrieved_documents": [
+                "API Documentation.pdf",
+                "Developer Guide.pdf",
+                "API Documentation.pdf",
+                "API Documentation.pdf",
+                "NovaDesk User Guide.pdf"
+            ],
+            "document_match": true,
+            "page_match": true,
+            "grounded": true,
+            "retrieval_precision": 0.6,
+            "keyword_accuracy": 1.0,
+            "latency_ms": 44.47
+        },
+        {
+            "question": "What infrastructure monitoring information should be collected during troubleshooting?",
+            "expected_document": "Infrastructure Guide.pdf",
+            "retrieved_documents": [
+                "Infrastructure Guide.pdf",
+                "Software Release Process.pdf",
+                "ISO 27001 Policy.pdf",
+                "Developer Guide.pdf",
+                "Software Release Process.pdf"
+            ],
+            "document_match": true,
+            "page_match": false,
+            "grounded": true,
+            "retrieval_precision": 0.2,
+            "keyword_accuracy": 0.75,
+            "latency_ms": 55.22
+        }
+    ]
+}
